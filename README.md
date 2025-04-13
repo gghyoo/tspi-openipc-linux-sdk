@@ -35,7 +35,8 @@ g++-multilib unzip device-tree-compiler ncurses-dev python2
 - 添加 `tspi` 立创开发板泰山派 Distroboot启动方法的支持, 参考配置文件 `device/rockchip/.chips/rk3566_rk3568/tspi-rk3566-ubuntu-distroboot_defconfig`
 
 ## Ubuntu
-使用 Ubuntu-22.04
+使用 Ubuntu-22.04 rootfs 构建，桌面系统使用xubuntu
+
 默认用户名密码: `tspi`, `12345`
 
 ### 串口
