@@ -1,20 +1,17 @@
-# TSPI-Linux SDK
+# tspi-openipc-linux-sdk
+基于立创泰山派开发板，用于实现OPENIPC地面站的Linux SDK.
 
-泰山派Linux SDK
-基于Rockchip原厂 `rk4.1-202305` 版本
+内置了wfb-ng和pixelpilot_rk，开机后，自动运行相关服务。
 
-## 预编译固件
-链接：https://pan.baidu.com/s/1yd-n9Xr-0quVid7sIeTM7Q?pwd=2653 
-提取码：2653 
-
+显示器默认使用 [高亮MIPI触摸屏(650nt, 7寸, 1920x1280)](https://shop70720731.taobao.com/)
 
 ## 编译步骤
 以下步骤针对Ubuntu 22.04编译环境
 
 ```bash
 sudo apt install git-lfs
-git clone --recursive https://github.com/CmST0us/tspi-linux-sdk.git
-cd tspi-linux-sdk
+git clone --recursive https://github.com/gghyoo/tspi-openipc-linux-sdk.git
+cd tspi-openipc-linux-sdk
 git lfs pull
 
 sudo apt update
@@ -37,10 +34,9 @@ g++-multilib unzip device-tree-compiler ncurses-dev python2
 - 添加 `tspi` 立创开发板泰山派 的支持，参考配置文件 `device/rockchip/.chips/rk3566_rk3568/tspi-rk3566-ubuntu_defconfig`
 - 添加 `tspi` 立创开发板泰山派 Distroboot启动方法的支持, 参考配置文件 `device/rockchip/.chips/rk3566_rk3568/tspi-rk3566-ubuntu-distroboot_defconfig`
 
-
 ## Ubuntu
 使用 Ubuntu-22.04
-默认用户名密码: `neons`
+默认用户名密码: `tspi`, `12345`
 
 ### 串口
 使用波特率 `115200`
