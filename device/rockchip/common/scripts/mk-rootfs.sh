@@ -156,53 +156,58 @@ build_ubuntu()
 {
 	# To build ubuntu, first need to mount image, than install kernel module into ubuntu
 	if [ ! -f ubuntu/ubuntu.tar.gz ]; then
-		echo -e "找不到Ubuntu Rootfs Tar 包"
-		return -1
-	else
-
-		echo "==============Start building ubuntu =============="
-		echo "TARGET_ARCH          =$RK_KERNEL_ARCH"
-		echo "TARGET_KERNEL_CONFIG =$RK_KERNEL_CFG"
-		echo "TARGET_KERNEL_CONFIG_FRAGMENT =$RK_KERNEL_CFG_FRAGMENTS"
-		echo "=================================================="
-
-		echo "Decompress ubuntu rootfs"
-		mkdir -p ubuntu/.ubuntu-rootfs
-		sudo tar zxf ubuntu/ubuntu.tar.gz -C ubuntu/.ubuntu-rootfs
-
-		if [ "${RK_KERNEL_DISTROBOOT}" = "y" ]; then
-			echo "Build rootfs distroboot"
-			build_rootfs_distroboot
-		fi 
-
-		cd ${SDK_DIR}
-		echo "Build and install kernel module"
-		mkdir -p ${SDK_DIR}/ubuntu/.kernel_module_install
-		$KMAKE INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=${SDK_DIR}/ubuntu/.kernel_module_install modules_install
-
-		sudo cp -ax ubuntu/.kernel_module_install/lib/modules ubuntu/.ubuntu-rootfs/lib
-
-		echo "Copy firmware"
-		if [ ! -d ubuntu/.ubuntu-rootfs/vendor/etc/firmware ]; then
-			sudo mkdir -p ubuntu/.ubuntu-rootfs/vendor/etc/firmware
+		echo -e "Can't find ubuntu Rootfs Tar package, try to download it ..."
+		mkdir -p ubuntu
+		wget --progress=bar:force http://nc.gghhost.com:28081/ubuntu_22.04_tspi_openipc_gs.tar.gz -O ubuntu/ubuntu.tar.gz
+		if [ ! -f ubuntu/ubuntu.tar.gz ]; then
+			echo -e "下载失败！"
+			return -1
 		fi
-		sudo cp -ax ${SDK_DIR}/firmware/* ubuntu/.ubuntu-rootfs/vendor/etc/firmware
-
-		echo "Pack ubuntu rootfs"
-		cd ${SDK_DIR}
-		dd if=/dev/zero of=ubuntu/ubuntu-rootfs.img bs=1G count=4
-		mkfs.ext4 ubuntu/ubuntu-rootfs.img
-		mkdir -p ubuntu/.ubuntu-rootfs-img
-		sudo mount -o loop ubuntu/ubuntu-rootfs.img ubuntu/.ubuntu-rootfs-img
-		sudo cp -ax ubuntu/.ubuntu-rootfs/* ubuntu/.ubuntu-rootfs-img/
-
-		sudo umount ubuntu/.ubuntu-rootfs-img/
-		e2fsck -p -f ubuntu/ubuntu-rootfs.img
-		resize2fs -M ubuntu/ubuntu-rootfs.img
-
-		echo "Finish build ubuntu rootfs image, clean tmp file"
-		sudo rm -rf ubuntu/.ubuntu* ubuntu/.kernel*
 	fi
+
+	echo "==============Start building ubuntu =============="
+	echo "TARGET_ARCH          =$RK_KERNEL_ARCH"
+	echo "TARGET_KERNEL_CONFIG =$RK_KERNEL_CFG"
+	echo "TARGET_KERNEL_CONFIG_FRAGMENT =$RK_KERNEL_CFG_FRAGMENTS"
+	echo "=================================================="
+
+	echo "Decompress ubuntu rootfs"
+	mkdir -p ubuntu/.ubuntu-rootfs
+	sudo tar zxf ubuntu/ubuntu.tar.gz -C ubuntu/.ubuntu-rootfs
+
+	if [ "${RK_KERNEL_DISTROBOOT}" = "y" ]; then
+		echo "Build rootfs distroboot"
+		build_rootfs_distroboot
+	fi 
+
+	cd ${SDK_DIR}
+	echo "Build and install kernel module"
+	mkdir -p ${SDK_DIR}/ubuntu/.kernel_module_install
+	$KMAKE INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH=${SDK_DIR}/ubuntu/.kernel_module_install modules_install
+
+	sudo cp -ax ubuntu/.kernel_module_install/lib/modules ubuntu/.ubuntu-rootfs/lib
+
+	echo "Copy firmware"
+	if [ ! -d ubuntu/.ubuntu-rootfs/vendor/etc/firmware ]; then
+		sudo mkdir -p ubuntu/.ubuntu-rootfs/vendor/etc/firmware
+	fi
+	sudo cp -ax ${SDK_DIR}/firmware/* ubuntu/.ubuntu-rootfs/vendor/etc/firmware
+
+	echo "Pack ubuntu rootfs"
+	cd ${SDK_DIR}
+	dd if=/dev/zero of=ubuntu/ubuntu-rootfs.img bs=1G count=5
+	mkfs.ext4 ubuntu/ubuntu-rootfs.img
+	mkdir -p ubuntu/.ubuntu-rootfs-img
+	sudo mount -o loop ubuntu/ubuntu-rootfs.img ubuntu/.ubuntu-rootfs-img
+	sudo cp -ax ubuntu/.ubuntu-rootfs/* ubuntu/.ubuntu-rootfs-img/
+
+	sudo umount ubuntu/.ubuntu-rootfs-img/
+	e2fsck -p -f ubuntu/ubuntu-rootfs.img
+	resize2fs -M ubuntu/ubuntu-rootfs.img
+
+	echo "Finish build ubuntu rootfs image, clean tmp file"
+	sudo rm -rf ubuntu/.ubuntu* ubuntu/.kernel*
+
 }
 
 # Hooks
