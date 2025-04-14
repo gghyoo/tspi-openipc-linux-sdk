@@ -193,6 +193,19 @@ build_ubuntu()
 	fi
 	sudo cp -ax ${SDK_DIR}/firmware/* ubuntu/.ubuntu-rootfs/vendor/etc/firmware
 
+	sudo mkdir -p ubuntu/.ubuntu-rootfs/etc/apt/sources.list.d
+	sudo mkdir -p ubuntu/.ubuntu-rootfs/etc/apt/keyrings
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/wfb-ng.list ubuntu/.ubuntu-rootfs/etc/apt/sources.list.d
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/wfb-ng.gpg ubuntu/.ubuntu-rootfs/etc/apt/keyrings
+	sudo mkdir -p ubuntu/.ubuntu-rootfs/usr/bin
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/install_wfb_gs.sh ubuntu/.ubuntu-rootfs/usr/bin
+	sudo mkdir -p ubuntu/.ubuntu-rootfs/etc/modprobe.d
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/wfb.conf ubuntu/.ubuntu-rootfs/etc/modprobe.d/wfb.conf
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/wifibroadcast.cfg ubuntu/.ubuntu-rootfs/etc
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/gs.key ubuntu/.ubuntu-rootfs/etc
+	sudo cp -ax ${SDK_DIR}/ubuntu/files/pixelpilot ubuntu/.ubuntu-rootfs/usr/bin
+	sudo chmod +x ubuntu/.ubuntu-rootfs/usr/bin/pixelpilot
+
 	echo "Pack ubuntu rootfs"
 	cd ${SDK_DIR}
 	dd if=/dev/zero of=ubuntu/ubuntu-rootfs.img bs=1G count=5

@@ -13,5 +13,4 @@ device/rockchip/.chip
 device/rockchip/rk3566_rk3568
 device/rockchip/rk3588
 manjaro/manjaro-rootfs.img
-ubuntu/
 .vscode/
