@@ -33,16 +33,13 @@
 // #include "tspi-rk3566-edp-v10.dtsi"
 
 //【开/关】mipi 显示屏幕配置，用户可以基于此复制自己的屏幕，注意EDP与MIPI屏幕互斥，因为共用了VOP如果需要同显自行修改
-#include "tspi-rk3566-dsi-v10.dtsi"
+// #include "tspi-rk3566-dsi-v10.dtsi"
 
 //【开/关】HDMI 显示屏幕配置，里面内容几乎可以不用动，如果不需要hdmi显示直接注释掉即可
-// #include "tspi-rk3566-hdmi-v10.dtsi"
+#include "tspi-rk3566-hdmi-v10.dtsi"
 
 //【开/关】摄像头 目前视频的是ov5659
 #include "tspi-rk3566-csi-v10.dtsi"
-
-//【开/关】网口 扩展板上使用的是千兆网，不接扩展板情况下可以关闭
-// #include "tspi-rk3566-gmac1-v10.dtsi"
 
 //【开/关】下方是用户定义层，所有用户修改理论上在此下方修改就好了
 / {
@@ -87,6 +84,22 @@
 	headphone {
 		hp_det: hp-det {
 			rockchip,pins = <0 RK_PC5 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	xpt2046-touchscreen {
+		xpt2046_int_pin: xpt2046-int-pin {
+			rockchip,pins = <3 RK_PA5 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	spi3 {
+		spi3_cs0n: spi3-cs0n {
+			rockchip,pins = <4 RK_PC6 RK_FUNC_GPIO &pcfg_pull_up_drv_level_2>;
+		};
+
+		spi3_cs1n: spi3-cs1n {
+			rockchip,pins = <3 RK_PA7 RK_FUNC_GPIO &pcfg_pull_up_drv_level_2>;
 		};
 	};
 };
@@ -144,18 +157,47 @@
 	max-freq = <48000000>;
 	dma-names = "tx","rx";
 	pinctrl-names = "default", "high_speed";
-	pinctrl-0 = <&spi3m1_cs0 &spi3m1_pins>;
-	pinctrl-1 = <&spi3m1_cs0 &spi3m1_pins_hs>;
-	spi_test@10 {
-		compatible ="rockchip,spi_test_bus1_cs0";
-		reg = <0>;
-		spi-max-frequency = <24000000>;
+	pinctrl-0 = <&spi3_cs0n &spi3_cs1n &spi3m1_pins>;
+	pinctrl-1 = <&spi3_cs0n &spi3_cs1n &spi3m1_pins_hs>;
+	cs-gpios = <&gpio4 RK_PC6 GPIO_ACTIVE_LOW>, <&gpio3 RK_PA7 GPIO_ACTIVE_LOW>;
+    
+	spi0_dev@0 {
+        compatible = "rockchip,spidev";
+        reg = <0>;
+        spi-max-frequency = <12000000>;
+        spi-lsb-first;
 		status = "okay";
-	};
-};
+    };
 
-&pwm0 {
-	status = "okay";
+	xpt2046@1 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&xpt2046_int_pin>;
+		reg = <1>;
+		compatible = "ti,ads7846";
+		interrupt-parent = <&gpio3>;
+		interrupts = <RK_PA6 0>;
+		spi-max-frequency = <1500000>;
+		pendown-gpio = <&gpio3 RK_PA6 0>;
+		ti,x-min = /bits/ 16 <0>;
+		ti,x-max = /bits/ 16 <0xfff>;
+		ti,y-min = /bits/ 16 <0>;
+		ti,y-max = /bits/ 16 <0xfff>;
+		ti,x-plate-ohms = /bits/ 16 <180>;
+		ti,pressure-max = /bits/ 16 <512>;
+		ti,debounce-max = /bits/ 16 <10>;
+		ti,debounce-tol = /bits/ 16 <30>;
+		ti,debounce-rep = /bits/ 16 <1>;
+		ti,settle-delay-usec = /bits/ 16 <150>;
+		ti,keep-vref-on = <1>;
+		/*
+		 * Do not set to wakeup source,
+		 * cause TL3568-EVM board will make xpt2046
+		 * int pin level change when suspend, this
+		 * will auto resume TL3568-EVM board.
+		 */
+		/delete-property/ linux,wakeup;
+		/delete-property/ wakeup-source;
+	};
 };
 
 &pwm8 {
