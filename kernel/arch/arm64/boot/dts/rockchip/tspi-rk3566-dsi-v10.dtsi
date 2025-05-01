@@ -189,12 +189,12 @@
 				clock-frequency = <159000000>;   //akiva 153600000
 				hactive = <1200>;
 				vactive = <1920>;
-				hfront-porch = <100>;   //akiva 100
+				hfront-porch = <100>;   //akiva 100; gavin 150
 				hsync-len = <10>;      //akiva 10
-				hback-porch = <40>;    //akiva 40
-				vfront-porch = <8>;   //akiva  8   4
-				vsync-len = <4>;       //akiva 4   1
-				vback-porch = <8>;    //akiva 30   4
+				hback-porch = <40>;    //akiva 40; gavin 80
+				vfront-porch = <12>;   //akiva  8; gavin 12
+				vsync-len = <4>;       //akiva 4  
+				vback-porch = <16>;    //akiva 30; gavin 16
 				hsync-active = <0>;
 				vsync-active = <0>;
 				de-active = <0>;
